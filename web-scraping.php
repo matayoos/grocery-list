@@ -12,7 +12,6 @@ $curl->get($url . $url_parameter);
 $html = $curl->response;
 
 $crawler = new Crawler($html);
-//$content = $crawler->filter('#respostaWS')->html();
 
 $datetime = $crawler->filter('.NFCCabecalho_SubTitulo')->eq(2)->text();
 $datetime = array_slice(explode(' ', $datetime), -2);
@@ -29,19 +28,30 @@ $data = array(
     'datetime'  => $datetime,
 );
 
-
 foreach($data as $key => $value)
     echo "$key:\t$value.\n";
 
 $id_items = $crawler->filterXPath('//tr[contains(@id, "Item + ")]')->evaluate('substring-after(@id, "+ ")');
-//var_dump($id_items);
 
 $items = array();
 
 foreach($id_items as $key){
-    $items["item-$key"] = $crawler->filterXPath('//*[@id="Item + ' . $key. '"]')->each(function (Crawler $node, $i){
+    $item = $crawler->filterXPath('//*[@id="Item + ' . $key. '"]')->each(function (Crawler $node, $i){
         return $node->text();
     });
+    
+    $item = explode(' ', $item[0]);
+    $description = implode(" ", array_slice($item, 1, -4));
+    $value = array_slice($item, -4);
+
+    $items["item-$key"] = array(
+        'codigo' => $item[0],
+        'descricao' => $description, 
+        'qtde' => $value[0],
+        'un' => $value[1],
+        'vl_unit' => $value[2],
+        'vl_total' => $value[3],
+    );
 }
 
 var_dump($items);
