@@ -14,15 +14,20 @@ $html = $curl->response;
 $crawler = new Crawler($html);
 $content = $crawler->filter('#respostaWS')->html();
 
-//Return grocery store name
-$name = $crawler->filter('.NFCCabecalho_SubTitulo')->text();
-
-//Return grocery store address
-$address = $crawler->filter('.NFCCabecalho_SubTitulo1')->eq(1)->text();
-
-//Return date and time
 $datetime = $crawler->filter('.NFCCabecalho_SubTitulo')->eq(2)->text();
+$datetime = array_slice(explode(' ', $datetime), -2);
 
-echo $name . "\n";
-echo $address . "\n";
-echo $datetime . "\n";
+$date = $datetime[0];
+$date = explode('/', $date);
+$date = $date[2] . '-' . $date[0] . '-' . $date[1];
+$time = $datetime[1];
+$datetime = $date . ' ' . $time;
+
+$data = array(
+    'name'      => $crawler->filter('.NFCCabecalho_SubTitulo')->text(),
+    'address'   => $crawler->filter('.NFCCabecalho_SubTitulo1')->eq(1)->text(),
+    'datetime'  => $datetime,
+);
+
+foreach($data as $key => $value)
+    echo "$key:\t$value.\n";
