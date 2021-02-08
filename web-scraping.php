@@ -12,7 +12,7 @@ $curl->get($url . $url_parameter);
 $html = $curl->response;
 
 $crawler = new Crawler($html);
-$content = $crawler->filter('#respostaWS')->html();
+//$content = $crawler->filter('#respostaWS')->html();
 
 $datetime = $crawler->filter('.NFCCabecalho_SubTitulo')->eq(2)->text();
 $datetime = array_slice(explode(' ', $datetime), -2);
@@ -29,5 +29,19 @@ $data = array(
     'datetime'  => $datetime,
 );
 
+
 foreach($data as $key => $value)
     echo "$key:\t$value.\n";
+
+$id_items = $crawler->filterXPath('//tr[contains(@id, "Item + ")]')->evaluate('substring-after(@id, "+ ")');
+//var_dump($id_items);
+
+$items = array();
+
+foreach($id_items as $key){
+    $items["item-$key"] = $crawler->filterXPath('//*[@id="Item + ' . $key. '"]')->each(function (Crawler $node, $i){
+        return $node->text();
+    });
+}
+
+var_dump($items);
