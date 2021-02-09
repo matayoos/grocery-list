@@ -54,4 +54,11 @@ foreach($id_items as $key){
     );
 }
 
-var_dump($items);
+$total = $crawler->filter('.NFCCabecalho')->last()->text();
+
+$total = explode(' ', $total);
+$total_array = array(
+    'vl_total' => $total[3],
+    'vl_desconto' => $total[7]
+);
+var_dump($total_array);
