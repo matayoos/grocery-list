@@ -1,5 +1,4 @@
 <?php
-use Curl\Curl;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Invoice{
@@ -7,25 +6,10 @@ class Invoice{
     private string $url, $datetime;
     private float $finalValue, $discount;
 
-    public function __construct($url){
+    public function __construct(string $url, Crawler $crawler){
         $this->url = $url;
 
-        $curl = new Curl();
-        $curl->get($url);
-        $html = $curl->response;
-
-        $crawler = new Crawler($html);
-
-        //Date & Time
-        $datetime = $crawler->filter('.NFCCabecalho_SubTitulo')->eq(2)->text();
-
-        $datetime = array_slice(explode(' ', $datetime), -2);
-        $date = $datetime[0];
-        $date = explode('/', $date);
-        $date = $date[2] . '-' . $date[0] . '-' . $date[1];
-        $time = $datetime[1];
-
-        $this->setDateTime($date . ' ' . $time);
+        $this->setDateTime($crawler);
 
         //Final value and discount
         $total = $crawler->filter('.NFCCabecalho')->last()->text();
@@ -48,8 +32,16 @@ class Invoice{
         return $this->datetime;
     }
 
-    public function setDateTime(string $datetime){
-        $this->datetime = $datetime;
+    public function setDateTime(Crawler $crawler){
+        $datetime = $crawler->filter('.NFCCabecalho_SubTitulo')->eq(2)->text();
+
+        $datetime = array_slice(explode(' ', $datetime), -2);
+        $date = $datetime[0];
+        $date = explode('/', $date);
+        $date = $date[2] . '-' . $date[0] . '-' . $date[1];
+        $time = $datetime[1];
+
+        $this->datetime = $date . ' ' . $time;
     }
 
     public function getFinalValue(){
@@ -57,6 +49,7 @@ class Invoice{
     }
 
     public function setFinalValue(float $finalValue){
+
         $this->finalValue = $finalValue;
     }
 
@@ -71,7 +64,7 @@ class Invoice{
     public function returnValues(){
         return  'Url: ' . $this->getUrl() . "\n" .
                 'Datetime: ' . $this->getDateTime() . "\n" .
-                'FinalValue: ' . $this->getFinalValue() . "\n" .
-                'Discount: ' . $this->getDiscount() . "\n";
+                'FinalValue: R$' . $this->getFinalValue() . "\n" .
+                'Discount: R$' . $this->getDiscount() . "\n";
     }
 }
