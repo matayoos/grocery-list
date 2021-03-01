@@ -29,23 +29,32 @@ class GroceryStore{
         $this->address = $crawler->filter('.NFCCabecalho_SubTitulo1')->eq(1)->text();       
     }
 
-    public function storeValues(){
+    public function storeValue(){
         $database = new Database();
 
-        try {
-            if(!empty($this->getName()) && !empty($this->getAddress())){
-                $sql = $database->prepare("INSERT INTO grocery_store SET name = :name, address = :address");
-                $sql->bindValue(":name", $this->getName());
-                $sql->bindValue(":address", $this->getAddress());
-                $sql->execute();
+        $check = $database->prepare("SELECT COUNT(*) FROM grocery_store WHERE name = :name");
+        $check->bindValue(":name", $this->getName());
+        $check->execute();
+        $count = $check->fetchColumn();
 
-                return true;
-            } else {
-                return false;
+        if($count > 0){
+            return "grocery store already cadastrada!" . PHP_EOL;
+        } else {
+            try {
+                if(!empty($this->getName()) && !empty($this->getAddress())){
+                    $sql = $database->prepare("INSERT INTO grocery_store SET name = :name, address = :address");
+                    $sql->bindValue(":name", $this->getName());
+                    $sql->bindValue(":address", $this->getAddress());
+                    $sql->execute();
+
+                    return true;
+                } else {
+                    return false;
+                }
+
+            } catch (PDOException $e) {
+                echo "Error " . $e->getMessage();
             }
-
-        } catch (PDOException $e) {
-            echo "Error " . $e->getMessage();
         }
     }
 
