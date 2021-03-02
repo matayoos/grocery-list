@@ -29,7 +29,7 @@ class GroceryStore{
         $this->address = $crawler->filter('.NFCCabecalho_SubTitulo1')->eq(1)->text();       
     }
 
-    public function storeValue(){
+    public function storeValues(){
         $database = new Database();
 
         $check = $database->prepare("SELECT COUNT(*) FROM grocery_store WHERE name = :name");
@@ -38,7 +38,7 @@ class GroceryStore{
         $count = $check->fetchColumn();
 
         if($count > 0){
-            return "grocery store already cadastrada!" . PHP_EOL;
+            return "grocery store already registered!" . PHP_EOL;
         } else {
             try {
                 if(!empty($this->getName()) && !empty($this->getAddress())){
